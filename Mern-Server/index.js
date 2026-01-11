@@ -12,10 +12,9 @@ app.get("/", (req, res) => {
   res.send("hello world");
 });
 
-//middleware
-
+// MongoDB URI
 const uri =
-  "mongodb+srv://chamara:chamara@cluster0.zfw6cvk.mongodb.net/test?retryWrites=true&w=majority";
+  "mongodb+srv://chamara:chamara@cluster0.zfw6cvk.mongodb.net/?retryWrites=true&w=majority";
 
 const client = new MongoClient(uri, {
   serverSelectionTimeoutMS: 5000,
@@ -27,13 +26,22 @@ async function run() {
     console.log("Connecting to MongoDB...");
     await client.connect();
 
-    //create a database collection
+    // Database & collection
+    const booksCollection = client.db("BookInventory").collection("books");
+
+    // POST: upload a book
+    app.post("/upload-book", async (req, res) => {
+      const data = req.body;
+      const result = await booksCollection.insertOne(data);
+      res.send(result);
+    });
 
     console.log("MongoDB connected successfully");
   } catch (error) {
     console.error("MongoDB connection failed:", error.message);
   }
 }
+
 run();
 
 app.listen(port, () => {
